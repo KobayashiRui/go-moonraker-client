@@ -1,4 +1,4 @@
-module go-moonraker-client
+module github.com/KobayashiRui/go-moonraker-client
 
 go 1.19
 
