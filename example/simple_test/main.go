@@ -23,7 +23,7 @@ func OriginHandler(ctx context.Context, conn *jsonrpc2.Conn, req *jsonrpc2.Reque
 	//	fmt.Printf("%v\n", notify_proc_stat_update)
 	case "notify_status_update":
 		fmt.Println("Notify Status")
-		fmt.Printf("%+v\n", string(*req.Params))
+		//fmt.Printf("%+v\n", string(*req.Params))
 		//default:
 		//	fmt.Println("other sub")
 		//	fmt.Printf("%v\n", string(*req.Params))

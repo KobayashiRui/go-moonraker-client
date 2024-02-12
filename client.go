@@ -109,7 +109,7 @@ func (mc *MoonrakerClient) GetServerFilesList() {
 func (mc *MoonrakerClient) SendCall(ctx context.Context, method string, params interface{}) (interface{}, error) {
 
 	var res interface{}
-	if err := mc.jrpc.Call(ctx, "printer.objects.subscribe", params, &res); err != nil {
+	if err := mc.jrpc.Call(ctx, method, params, &res); err != nil {
 		fmt.Println(err)
 		return res, err
 	}
