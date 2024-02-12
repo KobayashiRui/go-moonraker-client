@@ -2,7 +2,6 @@ package moonrakerclient
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/gorilla/websocket"
@@ -11,12 +10,20 @@ import (
 )
 
 type MoonrakerClient struct {
-	uri  string
-	jrpc *jsonrpc2.Conn
+	uri     string
+	jrpc    *jsonrpc2.Conn
+	handler func(ctx context.Context, conn *jsonrpc2.Conn, req *jsonrpc2.Request)
 }
 
 func NewMoonrakerClient(uri string) *MoonrakerClient {
-	return &MoonrakerClient{uri: uri}
+	return &MoonrakerClient{
+		uri:  uri,
+		jrpc: nil,
+	}
+}
+
+func (mc *MoonrakerClient) SetHandler(handler func(ctx context.Context, conn *jsonrpc2.Conn, req *jsonrpc2.Request)) {
+	mc.handler = handler
 }
 
 func (mc *MoonrakerClient) Test() {
@@ -40,22 +47,10 @@ func (mc *MoonrakerClient) Connect() {
 
 func (mc *MoonrakerClient) Handle(ctx context.Context, conn *jsonrpc2.Conn, req *jsonrpc2.Request) {
 	fmt.Printf("method: %v \n", req.Method)
-	switch req.Method {
-	case "notify_proc_stat_update":
-		var notify_proc_stat_update []NotifyProcStatUpdate
-		err := json.Unmarshal(*req.Params, &notify_proc_stat_update)
-		if err != nil {
-			fmt.Println("ERROR notify_proc_stat_update")
-			fmt.Printf("%v\n", err)
-		}
-		fmt.Printf("%v\n", notify_proc_stat_update)
-	default:
-		fmt.Printf("%v\n", string(*req.Params))
-	}
-
+	mc.handler(ctx, conn, req)
 }
 
-func (mc *MoonrakerClient) GetPrinterObjectsList() {
+func (mc *MoonrakerClient) GetPrinterObjectsList() PrinterObjects {
 	ctx := context.Background()
 	var po PrinterObjects
 
@@ -66,6 +61,36 @@ func (mc *MoonrakerClient) GetPrinterObjectsList() {
 
 	fmt.Println("Get")
 	fmt.Printf("%v \n", po)
+
+	return po
+}
+
+func (mc *MoonrakerClient) SetSubscribePrinterObject(po PrinterObjects) {
+	ctx := context.Background()
+	var params map[string]interface{} = make(map[string]interface{})
+	var objects_param map[string]*string = make(map[string]*string)
+	for _, v := range po.Objects {
+		objects_param[v] = nil
+	}
+
+	//objects_param["display_status"] = nil
+	//objects_param["toolhead"] = nil
+	//objects_param["gcode_move"] = nil
+	//objects_param["virtual_sdcard"] = nil
+	//objects_param["print_stats"] = nil
+
+	params["objects"] = objects_param
+
+	//b, err := json.Marshal(params)
+	//fmt.Printf("%v \n", string(b))
+	//fmt.Printf("error: %v \n", err)
+
+	var res interface{}
+	if err := mc.jrpc.Call(ctx, "printer.objects.subscribe", params, &res); err != nil {
+		fmt.Println(err)
+	}
+	fmt.Printf("res: %v\n", res)
+
 }
 
 func (mc *MoonrakerClient) GetServerFilesList() {
@@ -79,4 +104,14 @@ func (mc *MoonrakerClient) GetServerFilesList() {
 
 	fmt.Println("Get Server Files List")
 	fmt.Printf("%v \n", gcode_files)
+}
+
+func (mc *MoonrakerClient) SendCall(ctx context.Context, method string, params interface{}) (interface{}, error) {
+
+	var res interface{}
+	if err := mc.jrpc.Call(ctx, "printer.objects.subscribe", params, &res); err != nil {
+		fmt.Println(err)
+		return res, err
+	}
+	return res, nil
 }
