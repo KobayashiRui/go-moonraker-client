@@ -65,7 +65,25 @@ func (mc *MoonrakerClient) GetPrinterObjectsList() PrinterObjects {
 	return po
 }
 
-func (mc *MoonrakerClient) SetSubscribePrinterObject(po PrinterObjects) {
+func (mc *MoonrakerClient) GetPrinterObjects(objects []string) PrinterObjectsQuery {
+	ctx := context.Background()
+	var params map[string]interface{} = make(map[string]interface{})
+	var objects_param map[string]*string = make(map[string]*string)
+	for _, v := range objects {
+		objects_param[v] = nil
+	}
+
+	params["objects"] = objects_param
+
+	var res PrinterObjectsQuery
+	if err := mc.jrpc.Call(ctx, "printer.objects.subscribe", params, &res); err != nil {
+		fmt.Println(err)
+	}
+
+	return res
+}
+
+func (mc *MoonrakerClient) SetSubscribePrinterObject(po PrinterObjects) PrinterObjectsQuery {
 	ctx := context.Background()
 	var params map[string]interface{} = make(map[string]interface{})
 	var objects_param map[string]*string = make(map[string]*string)
@@ -73,24 +91,14 @@ func (mc *MoonrakerClient) SetSubscribePrinterObject(po PrinterObjects) {
 		objects_param[v] = nil
 	}
 
-	//objects_param["display_status"] = nil
-	//objects_param["toolhead"] = nil
-	//objects_param["gcode_move"] = nil
-	//objects_param["virtual_sdcard"] = nil
-	//objects_param["print_stats"] = nil
-
 	params["objects"] = objects_param
 
-	//b, err := json.Marshal(params)
-	//fmt.Printf("%v \n", string(b))
-	//fmt.Printf("error: %v \n", err)
-
-	var res interface{}
+	var res PrinterObjectsQuery
 	if err := mc.jrpc.Call(ctx, "printer.objects.subscribe", params, &res); err != nil {
 		fmt.Println(err)
 	}
-	fmt.Printf("res: %v\n", res)
 
+	return res
 }
 
 func (mc *MoonrakerClient) GetServerFilesList() {
