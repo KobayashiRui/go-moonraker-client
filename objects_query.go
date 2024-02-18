@@ -24,6 +24,17 @@ type IdleTimeout struct {
 	State        string  `json:"state"`
 }
 
+type VirtualSdcard struct {
+	Progress     float32 `json:"progress"`
+	IsActive     bool    `json:"is_active"`
+	FilePosition int     `json:"file_position"`
+}
+
+type DisplayStatus struct {
+	Message  string  `json:"message"`
+	Progress float32 `json:"progress"`
+}
+
 func ConvRef(bd interface{}, res interface{}) {
 	// Convert map to string
 	jsonStr, err := json.Marshal(bd)

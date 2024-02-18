@@ -76,7 +76,7 @@ func (mc *MoonrakerClient) GetPrinterObjects(objects []string) PrinterObjectsQue
 	params["objects"] = objects_param
 
 	var res PrinterObjectsQuery
-	if err := mc.jrpc.Call(ctx, "printer.objects.subscribe", params, &res); err != nil {
+	if err := mc.jrpc.Call(ctx, "printer.objects.query", params, &res); err != nil {
 		fmt.Println(err)
 	}
 
