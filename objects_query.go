@@ -30,6 +30,21 @@ type VirtualSdcard struct {
 	FilePosition int     `json:"file_position"`
 }
 
+type PrintStatsInfo struct {
+	TotalLayer   *int32 `json:"total_layer"`
+	CurrentLayer *int32 `json:"current_layer"`
+}
+
+type PrintStats struct {
+	Filename      string         `json:"filename"`
+	TotalDuration float32        `json:"total_duration"`
+	PrintDuration float32        `json:"print_duration"`
+	FilamentUsed  float32        `json:"filament_used"`
+	State         string         `json:"state"`
+	Message       string         `json:"message"`
+	Info          PrintStatsInfo `json:"info"`
+}
+
 type DisplayStatus struct {
 	Message  string  `json:"message"`
 	Progress float32 `json:"progress"`

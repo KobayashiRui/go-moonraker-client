@@ -26,8 +26,20 @@ func OriginHandler(ctx context.Context, conn *jsonrpc2.Conn, req *jsonrpc2.Reque
 		//fmt.Printf("params: %+v\n", params)
 		if val, ok := params["display_status"]; ok {
 			//fmt.Printf("exists. The value is %#v", val)
+			fmt.Printf("Event: display_status")
 			ds := moonrakerclient.Conv[moonrakerclient.DisplayStatus](val)
+			fmt.Printf("data: %+v\n", ds)
 			fmt.Printf("Progress: %f\n", ds.Progress*100.0)
+		}
+
+		if val, ok := params["print_stats"]; ok {
+			fmt.Println("Event: print_stats")
+			ds := moonrakerclient.Conv[moonrakerclient.PrintStats](val)
+			if ds.State != "" {
+				fmt.Printf("data: %s\n", ds.State)
+			} else {
+				fmt.Printf("Not change")
+			}
 		}
 		fmt.Println("#################")
 		//default:
